@@ -1,4 +1,4 @@
-module Authentication-Go
+module KeyVault-Manager
 
 go 1.21.5
 

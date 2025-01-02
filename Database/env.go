@@ -14,10 +14,11 @@ const (
 	user     = "postgres"
 	password = "Gautam@123"
 	host     = "localhost"
+	userDb   = "postgres"
 )
 
 const (
-	userDb = "postgres"
+	SignUpTable = "users"
 )
 
 var DbManager = &DBManager{}

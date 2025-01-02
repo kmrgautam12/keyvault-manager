@@ -42,16 +42,14 @@ func (db *DBManager) InsertToDb(ctx *gin.Context, stmt string) error {
 	return nil
 }
 
-func (db *DBManager) GetUserFromDB(ctx *gin.Context, stmt string) error {
+func (db *DBManager) GetUserFromDB(ctx *gin.Context, stmt string) (bool, error) {
 	p, err := db.dbpool.Exec(context.Background(), stmt)
 	if err != nil {
-		utils.SentErrorResponse500(ctx, err)
-		return nil
+		return false, err
 	}
 	if p.RowsAffected() == 0 {
-		utils.SentErrorResponse500(ctx, errors.New("no matching row"))
-		return nil
+		return false, err
 	}
-	return nil
+	return true, nil
 
 }
