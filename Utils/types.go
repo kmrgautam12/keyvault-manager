@@ -18,3 +18,9 @@ type GenerateJWTTokenOutput struct {
 	TokenId    string `json:"token_id"`
 	ValidUntil int64  `json:"valid_until"`
 }
+
+type LoginOutputStruct struct {
+	Username string `json:"user"`
+	UserIp   string `json:"ip"`
+	Token    GenerateJWTTokenOutput
+}

@@ -16,7 +16,6 @@ var secretString = "secret-string"
 func GenerateJWTToken(c *gin.Context) {
 
 	var user utils.GenerateJWTInput
-	var t utils.GenerateJWTTokenOutput
 	err := c.ShouldBindBodyWithJSON(&user)
 	if err != nil {
 		utils.SentErrorResponse500(c, err)
@@ -32,7 +31,15 @@ func GenerateJWTToken(c *gin.Context) {
 		utils.SentErrorResponse500(c, fmt.Errorf("user %s doesn't exist", user.UserName))
 		return
 	}
+	t, err := CreateClaimsAndToken(user.UserName)
+	if err != nil {
+		utils.SentErrorResponse500(c, fmt.Errorf("error generating user token, user : %s", user.UserName))
+	}
 
+	utils.SentSuccessResponse200(c, t)
+}
+
+func CreateClaimsAndToken(user string) (t utils.GenerateJWTTokenOutput, err error) {
 	t.TokenId = uuid.NewString()
 	t.ValidUntil = time.Now().Add((JwtClaimExpire)).Unix()
 
@@ -40,15 +47,14 @@ func GenerateJWTToken(c *gin.Context) {
 		Id:        uuid.NewString(),
 		ExpiresAt: int64(JwtClaimExpire),
 		IssuedAt:  time.Now().Unix(),
-		Issuer:    user.UserName,
+		Issuer:    user,
 		Audience:  "public",
 	})
 
 	t.Token, err = tClaim.SignedString([]byte(secretString))
 	if err != nil {
-		utils.SentErrorResponse500(c, err)
-		return
+		return t, err
 	}
+	return t, nil
 
-	utils.SentSuccessResponse200(c, t)
 }

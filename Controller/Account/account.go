@@ -2,6 +2,7 @@ package account
 
 import (
 	service "KeyVault-Manager/Database/Service"
+	middlewares "KeyVault-Manager/Middlewares"
 	utils "KeyVault-Manager/Utils"
 	"fmt"
 
@@ -58,7 +59,24 @@ func UserLogin(c *gin.Context) {
 	}
 
 	//retrive password from
-
-	bcrypt.CompareHashAndPassword()
-
+	dbResp, err := service.GetUserService(c, usr.UserName)
+	if err != nil {
+		utils.SentErrorResponse500(c, err)
+		return
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(dbResp.Password), []byte(usr.Password))
+	if err != nil {
+		utils.SentErrorResponse500(c, fmt.Errorf("your password is not valid"))
+		return
+	}
+	t, err := middlewares.CreateClaimsAndToken(usr.UserName)
+	if err != nil {
+		utils.SentErrorResponse500(c, fmt.Errorf("login failed !! Please check username and password"))
+		return
+	}
+	utils.SentSuccessResponse200(c, utils.LoginOutputStruct{
+		Username: usr.UserName,
+		UserIp:   usr.Ip,
+		Token:    t,
+	})
 }

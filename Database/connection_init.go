@@ -1,8 +1,10 @@
 package database
 
 import (
+	utils "KeyVault-Manager/Utils"
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -55,19 +57,24 @@ func (db *DBManager) GetUserFromDB(ctx *gin.Context, stmt string) (bool, error) 
 
 }
 
-func (db *DBManager) GetUserFromDBService(ctx *gin.Context, stmt string) (bool, error) {
+func (db *DBManager) GetUserFromDBService(ctx *gin.Context, stmt string) (usr utils.CreateAccountInput, err error) {
 	p, err := db.dbpool.Query(context.Background(), stmt)
 	if err != nil {
-		return false, err
+		return usr, err
 	}
 	defer p.Close()
 	if p.Err() != nil {
-		return false, err
+		return usr, err
 	}
-	if p.Next() {
-		p.Values()
-		return true, nil
+
+	for p.Next() {
+		values, err := p.Values()
+		if err != nil {
+			log.Fatal(err)
+		}
+		usr.UserName = values[0].(string)
+		usr.Password = values[1].(string)
 	}
-	return false, nil
+	return usr, nil
 
 }
