@@ -1,4 +1,4 @@
-package account
+package utils
 
 type CreateAccountInput struct {
 	UserName string `json:"username"`

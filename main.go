@@ -1,8 +1,8 @@
 package main
 
 import (
-	database "Authentication-Go/Database"
-	routes "Authentication-Go/Routes"
+	database "KeyVault-Manager/Database"
+	routes "KeyVault-Manager/Routes"
 
 	"github.com/gin-gonic/gin"
 )

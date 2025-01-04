@@ -1,5 +1,7 @@
 package account
 
-func ValidateCreateAccountInput(user CreateAccountInput) {
+import utils "KeyVault-Manager/Utils"
+
+func ValidateCreateAccountInput(user utils.CreateAccountInput) {
 
 }

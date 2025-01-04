@@ -1,9 +1,8 @@
 package database
 
 import (
-	utils "Authentication-Go/Utils"
 	"context"
-	"errors"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -29,27 +28,46 @@ func InitPgDBConnection() *DBManager {
 	}
 }
 
-func (db *DBManager) InsertToDb(ctx *gin.Context, stmt string) error {
-	p, err := db.dbpool.Exec(context.Background(), stmt)
+func (db *DBManager) InsertToDb(ctx *gin.Context, stmt string, user string, hash_pass string) error {
+	p, err := db.dbpool.Exec(context.Background(), stmt, user, hash_pass)
 	if err != nil {
-		utils.SentErrorResponse500(ctx, err)
-		return nil
+		return fmt.Errorf("error creating user: error : %s", err.Error())
 	}
 	if p.RowsAffected() == 0 {
-		utils.SentErrorResponse500(ctx, errors.New("no matching row"))
-		return nil
+		return fmt.Errorf("error creating user: error : %s", err)
 	}
 	return nil
 }
 
 func (db *DBManager) GetUserFromDB(ctx *gin.Context, stmt string) (bool, error) {
-	p, err := db.dbpool.Exec(context.Background(), stmt)
+	p, err := db.dbpool.Query(context.Background(), stmt)
 	if err != nil {
 		return false, err
 	}
-	if p.RowsAffected() == 0 {
+	defer p.Close()
+	if p.Err() != nil {
 		return false, err
 	}
-	return true, nil
+	if p.Next() {
+		return true, nil
+	}
+	return false, nil
+
+}
+
+func (db *DBManager) GetUserFromDBService(ctx *gin.Context, stmt string) (bool, error) {
+	p, err := db.dbpool.Query(context.Background(), stmt)
+	if err != nil {
+		return false, err
+	}
+	defer p.Close()
+	if p.Err() != nil {
+		return false, err
+	}
+	if p.Next() {
+		p.Values()
+		return true, nil
+	}
+	return false, nil
 
 }
