@@ -24,3 +24,9 @@ type LoginOutputStruct struct {
 	UserIp   string `json:"ip"`
 	Token    GenerateJWTTokenOutput
 }
+
+type CreateSecretInput struct {
+	IP    string `json:"ip"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
